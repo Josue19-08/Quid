@@ -15,6 +15,7 @@ jobs:
       run:
         working-directory: ./quid-contract
     steps:
+      - name: Checkout repository
       - uses: actions/checkout@v4
 
       - name: Check for contract changes
@@ -29,8 +30,20 @@ jobs:
         if: steps.changes.outputs.contracts == 'true' || github.event_name == 'push'
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown
+          targets: stable
           components: clippy, rustfmt
+
+      - name: Install WASM target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Install Stellar CLI
+        run: |
+          if ! command -v brew &> /dev/null; then
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $GITHUB_ENV
+          fi
+          brew install stellar-cli
+          stellar --version
 
       - name: Cache Cargo registry
         if: steps.changes.outputs.contracts == 'true' || github.event_name == 'push'
@@ -50,11 +63,33 @@ jobs:
 
       - name: Linting
         if: steps.changes.outputs.contracts == 'true' || github.event_name == 'push'
-        run: cargo clippy --all-targets --target wasm32-unknown-unknown -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Build contracts
+        run: |
+          cargo build --target wasm32-unknown-unknown --release
+          ls -la target/wasm32-unknown-unknown/release/
+          for file in target/wasm32-unknown-unknown/release/*.wasm; do
+            if [ -f "$file" ]; then
+              size=$(stat -f%z "$file")
+              echo "Contract size: $size bytes"
+              if [ $size -gt 1048576 ]; then
+                echo "Error: Contract size exceeds 1MB limit"
+                exit 1
+              fi
+            fi
+          done
 
       - name: Run Tests
         if: steps.changes.outputs.contracts == 'true' || github.event_name == 'push'
         run: cargo test
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-wasm
+          path: /target/wasm32-unknown-unknown/release/*.wasm
+          retention-days: 4
 
   # JOB 2: FRONTEND
   frontend:
