@@ -159,19 +159,18 @@ export default function CreatorDashboard() {
             {state.responses.length === 0 ? (
               <NoResponsesEmptyState />
             ) : (
-                <div className="space-y-3">
-                  {state.responses.map((response) => (
-                    <ResponsePreview
-                      key={response.id}
-                      id={response.id}
-                      respondentName={response.respondentName}
-                      respondentAvatar={response.respondentAvatar}
-                      questTitle={response.questTitle}
-                      timeSinceSubmission={response.timeSinceSubmission}
-                    />
-                  ))}
-                </div>
-              
+              <div className="space-y-3">
+                {state.responses.map((response) => (
+                  <ResponsePreview
+                    key={response.id}
+                    id={response.id}
+                    respondentName={response.respondentName}
+                    respondentAvatar={response.respondentAvatar}
+                    questTitle={response.questTitle}
+                    timeSinceSubmission={response.timeSinceSubmission}
+                  />
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -183,33 +182,37 @@ export default function CreatorDashboard() {
 // Header Component
 function DashboardHeader({ setIsSidebarOpen }: { setIsSidebarOpen: (open: boolean) => void }) {
   return (
-    <header className="sticky top-0 z-30 ">
+    <header className="sticky top-0 z-30">
       <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="lg:hidden p-2 hover:bg-gray-800/50 rounded-lg transition-colors"
-          >
-            <Menu className="w-5 h-5 text-gray-400" />
-          </button>
           <h1 className="text-lg sm:text-xl font-semibold text-white">Dashboard</h1>
         </div>
 
-
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-4">
           <button className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors relative">
             <Bell className="w-5 h-5 text-gray-400" />
           </button>
+
           <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gray-800/30 rounded-lg">
             <Wallet className="w-5 h-5 text-white" />
             <span className="text-sm font-medium text-white">$0</span>
           </div>
-          <button className="flex items-center space-x-2 px-3 py-1.5 hover:bg-gray-800/50 rounded-lg transition-colors">
-            <div className="w-8 h-8 rounded-full bg-[#9011FF] flex items-center justify-center">
+
+          {/* User Profile Button */}
+          <button className="flex items-center space-x-2 hover:bg-gray-800/50 rounded-lg transition-colors p-1 sm:px-3 sm:py-1.5">
+            <div className="w-8 h-8 rounded-full bg-[#9011FF] flex items-center justify-center flex-shrink-0">
               <span className="text-sm font-semibold text-white">R</span>
             </div>
             <span className="hidden sm:block text-sm font-medium text-white">Ruze.stellar</span>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
+            <ChevronDown className="hidden sm:block w-4 h-4 text-gray-400" />
+          </button>
+
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="lg:hidden p-2 hover:bg-gray-800/50 rounded-lg transition-colors"
+          >
+            <Menu className="w-5 h-5 text-gray-400" />
           </button>
         </div>
       </div>
