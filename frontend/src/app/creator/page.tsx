@@ -199,7 +199,6 @@ function DashboardHeader({ setIsSidebarOpen }: { setIsSidebarOpen: (open: boolea
         <div className="flex items-center space-x-2 sm:space-x-4">
           <button className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors relative">
             <Bell className="w-5 h-5 text-gray-400" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
           </button>
           <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gray-800/30 rounded-lg">
             <Wallet className="w-5 h-5 text-white" />
