@@ -1,9 +1,9 @@
 #![cfg(test)]
 
 use super::*;
+use soroban_sdk::token::{Client as TokenClient, StellarAssetClient};
 use soroban_sdk::{testutils::Address as _, Address, Env, String};
 use types::MissionStatus;
-use soroban_sdk::token::{self, Client as TokenClient};
 
 /// Helper function to create test environment and register contract
 fn setup_test_env() -> (Env, Address, Address, Address) {
@@ -18,15 +18,21 @@ fn setup_test_env() -> (Env, Address, Address, Address) {
     let token_admin = Address::generate(&env);
 
     // Deploy a real Stellar token contract
-    let token_id = env.register_stellar_asset_contract(token_admin.clone());
-    let token_client = TokenClient::new(&env, &token_id);
+    // FIX 1: This returns a StellarAssetContract struct, not just an Address
+    let token_contract = env.register_stellar_asset_contract_v2(token_admin.clone());
+
+    // FIX 2: Extract the actual address to use with clients
+    let token_address = token_contract.address();
 
     // Mint a large balance to owner (for escrow tests)
-    token_client.mint(&token_admin, &owner, &1_000_000_000_000);
+    // Use admin interface to mint tokens
+    let admin_client = StellarAssetClient::new(&env, &token_address);
 
-    (env, contract_id, owner, token_id)
+    // FIX 3: mint() takes (&to, &amount). The admin/auth is handled by mock_all_auths() or the client context.
+    admin_client.mint(&owner, &1_000_000_000_000);
+
+    (env, contract_id, owner, token_address)
 }
-
 
 #[test]
 fn test_create_mission_success() {
@@ -186,7 +192,7 @@ fn test_create_mission_with_unlimited_participants() {
     assert_eq!(mission.max_participants, 0);
 }
 
-     #[test]
+#[test]
 #[should_panic]
 fn test_create_mission_with_zero_reward_fails() {
     let (env, contract_id, owner, token_address) = setup_test_env();
@@ -201,7 +207,6 @@ fn test_create_mission_with_zero_reward_fails() {
         &50,
     );
 }
-
 
 #[test]
 fn test_mission_owner_authentication() {
@@ -302,7 +307,13 @@ fn test_multiple_owners_create_missions() {
     let (env, contract_id, owner1, token_address) = setup_test_env();
     let client = QuidStoreContractClient::new(&env, &contract_id);
 
+    // FIX: We need the admin client to mint tokens for the second owner
+    let admin_client = StellarAssetClient::new(&env, &token_address);
+
     let owner2 = Address::generate(&env);
+
+    // FIX: Mint tokens for owner2 so they can pay the escrow
+    admin_client.mint(&owner2, &10_000_000_000);
 
     // Owner 1 creates a mission
     let mission_id_1 = client.create_mission(
@@ -352,9 +363,9 @@ fn test_escrow_balance_after_mission_creation() {
         &max_participants,
     );
 
-    let contract_balance =
-        token_client.balance(&env.current_contract_address());
+    // FIX: Use `contract_id` directly instead of `env.current_contract_address()`
+    // `env.current_contract_address()` causes a panic because we are in the test harness, not inside a contract call.
+    let contract_balance = token_client.balance(&contract_id);
 
     assert_eq!(contract_balance, total_needed);
 }
-

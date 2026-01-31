@@ -4,8 +4,8 @@ use soroban_sdk::{contract, contractimpl, Address, Env, String};
 mod error;
 mod types;
 use error::QuidError;
-use types::{DataKey, Mission, MissionStatus};
 use soroban_sdk::token;
+use types::{DataKey, Mission, MissionStatus};
 
 /// Quid Store Contract
 ///
@@ -62,20 +62,15 @@ impl QuidStoreContract {
 
         // 2.5 Escrow Funding: Pull full mission reward into contract
 
-let total_needed: i128 = reward_amount
-    .checked_mul(max_participants as i128)
-    .ok_or(QuidError::NegativeReward)?;
+        let total_needed: i128 = reward_amount
+            .checked_mul(max_participants as i128)
+            .ok_or(QuidError::NegativeReward)?;
 
-// Token client
-let token_client = token::Client::new(&env, &reward_token);
+        // Token client
+        let token_client = token::Client::new(&env, &reward_token);
 
-// Transfer tokens from creator → contract escrow
-token_client.transfer(
-    &owner,
-    &env.current_contract_address(),
-    &total_needed,
-);
-
+        // Transfer tokens from creator → contract escrow
+        token_client.transfer(&owner, env.current_contract_address(), &total_needed);
 
         // 3. ID Generation: Get and increment mission count
         let mission_id = Self::get_next_mission_id(&env);
@@ -203,9 +198,8 @@ token_client.transfer(
 
         // Reward amount must be non-negative
         if reward_amount <= 0 {
-         return Err(QuidError::NegativeReward);
+            return Err(QuidError::NegativeReward);
         }
-
 
         Ok(())
     }
