@@ -367,7 +367,7 @@ fn test_cancel_mission_success() {
 }
 
 #[test]
-#[should_panic(expected = "Error(Contract, #8)")]
+#[should_panic(expected = "Error(Contract, #2)")]
 fn test_cancel_mission_fails_if_completed() {
     let (env, contract_id, owner, token_address) = setup_test_env();
     let client = QuidStoreContractClient::new(&env, &contract_id);
