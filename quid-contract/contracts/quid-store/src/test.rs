@@ -2,8 +2,7 @@
 
 use super::*;
 use soroban_sdk::token::{Client as TokenClient, StellarAssetClient};
-use soroban_sdk::{testutils::Address as _, vec, Address, Env, String};
-use soroban_sdk::{testutils::Address as _, Address, Env, IntoVal, String};
+use soroban_sdk::{testutils::Address as _, vec, IntoVal, Address, Env, String};
 use types::MissionStatus;
 
 /// Helper function to create test environment and register contract
@@ -520,8 +519,8 @@ fn test_get_missions_batch_query() {
     let mission_1 = result_1.unwrap();
     let mission_2 = result_2.unwrap();
 
-    assert_eq!(mission_1.id, mission_id_1);
-    assert_eq!(mission_2.id, mission_id_2);
+    assert_eq!(mission_1.id, id1);
+    assert_eq!(mission_2.id, id2);
     assert_eq!(mission_1.title, String::from_str(&env, "Batch Test 1"));
     assert_eq!(mission_2.title, String::from_str(&env, "Batch Test 2"));
 }

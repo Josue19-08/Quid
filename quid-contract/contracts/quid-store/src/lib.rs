@@ -32,7 +32,7 @@ impl QuidStoreContract {
             .ok_or(QuidError::NegativeReward)?;
 
         let token_client = token::Client::new(&env, &reward_token);
-        token_client.transfer(&owner, &env.current_contract_address(), &total_needed);
+        token_client.transfer(&owner, env.current_contract_address(), &total_needed);
 
         let mission_id = Self::get_next_mission_id(&env);
 
