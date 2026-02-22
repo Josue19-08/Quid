@@ -2,7 +2,7 @@
 
 use super::*;
 use soroban_sdk::token::{Client as TokenClient, StellarAssetClient};
-use soroban_sdk::{testutils::Address as _, vec, IntoVal, Address, Env, String};
+use soroban_sdk::{testutils::Address as _, vec, Address, Env, IntoVal, String};
 use types::MissionStatus;
 
 /// Helper function to create test environment and register contract
