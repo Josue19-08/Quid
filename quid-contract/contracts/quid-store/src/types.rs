@@ -30,4 +30,5 @@ pub struct Mission {
 pub enum DataKey {
     Mission(u64),
     MissionCount,
+    Submission(u64, Address),
 }
